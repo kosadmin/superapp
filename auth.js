@@ -1,93 +1,40 @@
-// --- CẤU HÌNH API ---
-const APPSCRIPT_API_URL = 'https://script.google.com/macros/s/AKfycbwaelNye6S3YX1WaMTPkqqfh5N1lUA8RdBGmwO77O9G_DxpuM9QBrxMlMRp2SK-6sdR/exec'; // <<< THAY THẾ URL DEPLOY CỦA APPSCRIPT >>>
-const TOKEN_KEY = 'user_session_token';
+const API_URL = "https://script.google.com/macros/s/AKfycbwaelNye6S3YX1WaMTPkqqfh5N1lUA8RdBGmwO77O9G_DxpuM9QBrxMlMRp2SK-6sdR/exec"; // <--- Dán link vào đây
 
-// --- HÀM GỌI API CHUNG ---
-async function callApi(action, payload = {}) {
-    try {
-        const response = await fetch(APPSCRIPT_API_URL, {
-            method: 'POST',
-            mode: 'cors',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ action, ...payload }),
-        });
-
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const data = await response.json();
-        return data;
-
-    } catch (error) {
-        console.error("Error calling Apps Script API:", error);
-        return { success: false, message: "Lỗi kết nối hoặc lỗi máy chủ." };
-    }
+async function api(action, data) {
+  const res = await fetch(API_URL, {
+    method: "POST",
+    body: JSON.stringify({ action, ...data })
+  });
+  return await res.json();
 }
 
-// --- LOGIC XỬ LÝ ĐĂNG NHẬP ---
-async function handleLogin(username, password, remember) {
-    const result = await callApi('login', { username, password, remember });
-    
-    if (result.success) {
-        // Lưu token vào Local Storage
-        localStorage.setItem(TOKEN_KEY, result.token);
-    }
-    return result;
+// Lưu token vào localStorage
+function saveSession(token) {
+  localStorage.setItem("session_token", token);
 }
 
-// --- LOGIC LẤY TOKEN ---
-function getSessionToken() {
-    return localStorage.getItem(TOKEN_KEY);
+function getSession() {
+  return localStorage.getItem("session_token");
 }
 
-// --- LOGIC KIỂM TRA PHIÊN (trả về username nếu hợp lệ) ---
-async function validateAndRedirect(redirectIfInvalid = '/login.html', redirectIfValid = null) {
-    const token = getSessionToken();
-    if (!token) {
-        if (redirectIfInvalid) window.location.href = redirectIfInvalid;
-        return { isAuthenticated: false };
-    }
+async function checkLogin() {
+  const token = getSession();
+  if (!token) {
+    window.location.href = "login.html";
+    return;
+  }
 
-    const result = await callApi('validateSession', { token });
-
-    if (result.success) {
-        // Kiểm tra thêm thời gian hết hạn (tùy chọn)
-        if (Date.now() > result.expiresAt) {
-            localStorage.removeItem(TOKEN_KEY);
-            if (redirectIfInvalid) window.location.href = redirectIfInvalid;
-            return { isAuthenticated: false };
-        }
-        
-        if (redirectIfValid) window.location.href = redirectIfValid;
-        return { isAuthenticated: true, username: result.username };
-    } else {
-        // Phiên không hợp lệ/hết hạn -> xóa token và chuyển hướng
-        localStorage.removeItem(TOKEN_KEY);
-        if (redirectIfInvalid) window.location.href = redirectIfInvalid;
-        return { isAuthenticated: false };
-    }
+  const res = await api("validate", { token });
+  if (!res.valid) {
+    localStorage.removeItem("session_token");
+    window.location.href = "login.html";
+  }
 }
 
-// --- LOGIC ĐĂNG XUẤT ---
-async function handleLogout() {
-    const token = getSessionToken();
-    if (token) {
-        // Gọi API xóa session trên Sheet (tùy chọn, để đảm bảo sạch)
-        await callApi('logout', { token }); 
-        localStorage.removeItem(TOKEN_KEY);
-    }
-    // Chuyển hướng về trang đăng nhập
-    window.location.href = '/login.html';
-}
+async function logout() {
+  const token = getSession();
+  await api("logout", { token });
 
-// --- LOGIC LẤY THÔNG TIN USER ---
-async function getUserInfo() {
-    const token = getSessionToken();
-    if (!token) return { success: false, message: 'Chưa đăng nhập.' };
-
-    const result = await callApi('getUserInfo', { token });
-    return result;
+  localStorage.removeItem("session_token");
+  window.location.href = "login.html";
 }

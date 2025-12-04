@@ -1,4 +1,4 @@
-const API_URL = "YOUR_APPS_SCRIPT_URL_HERE"; // <--- Dán link vào đây
+const API_URL = "https://script.google.com/macros/s/AKfycbzwBiyhbqL7ke_4E-psldCYukEQbD2tVSdylCKdeG8AfATLRypdiBS8aQnvT6NI33Pp8w/exec"; // <--- Dán link API Appscript GGsheet vào đây
 
 async function api(action, data) {
   const res = await fetch(API_URL, {

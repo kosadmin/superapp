@@ -1,28 +1,42 @@
 <!DOCTYPE html>
-<html>
+<html lang="vi">
 <head>
-  <meta charset="UTF-8">
-  <title>Dashboard</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <script src="auth.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
 </head>
-<body onload="init()">
-  <h2>Dashboard</h2>
-  <p id="welcome">Đang kiểm tra phiên...</p>
+<body>
+    <header>
+        <h1>Dashboard - Chào mừng!</h1>
+        <p>Bạn đã đăng nhập thành công.</p>
+        <nav>
+            <a href="/dashboard.html">Dashboard</a> | 
+            <a href="/profile.html">Thông tin cá nhân</a> | 
+            <button id="logoutBtn">Đăng xuất</button>
+        </nav>
+    </header>
+    <main id="content">
+        <p>Tải dữ liệu...</p>
+    </main>
 
-  <nav>
-    <a href="profile.html">Xem hồ sơ</a> |
-    <a href="#" onclick="logout(); return false;">Logout</a>
-  </nav>
+    <script src="auth.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Kiểm tra session. Nếu không hợp lệ, sẽ tự động chuyển về login.html
+            validateAndRedirect('/login.html')
+                .then(session => {
+                    if (session.isAuthenticated) {
+                        const content = document.getElementById('content');
+                        content.innerHTML = `
+                            <p>Tài khoản hiện tại: <strong>${session.username}</strong></p>
+                            <p>Đây là trang chính sau khi đăng nhập. Bạn có thể truy cập các trang khác.</p>
+                        `;
+                    }
+                });
 
-  <script>
-    async function init() {
-      const username = await checkLogin();
-      if (!username) return; // checkLogin redirects if not valid
-
-      // show welcome (username may be returned from validate)
-      document.getElementById("welcome").innerText = "Chào mừng, " + (username === true ? "" : username);
-    }
-  </script>
+            // Gán sự kiện cho nút đăng xuất
+            document.getElementById('logoutBtn').addEventListener('click', handleLogout);
+        });
+    </script>
 </body>
 </html>

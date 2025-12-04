@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Login</title>
+  <script src="auth.js"></script>
+</head>
+<body>
+  <h2>Đăng nhập</h2>
+
+  <input id="username" placeholder="Username"><br>
+  <input id="password" type="password" placeholder="Password"><br>
+  <label>
+    <input type="checkbox" id="remember"> Remember me
+  </label><br>
+  <button onclick="doLogin()">Login</button>
+
+  <script>
+    async function doLogin() {
+      const username = document.getElementById("username").value;
+      const password = document.getElementById("password").value;
+      const remember = document.getElementById("remember").checked;
+
+      const res = await api("login", { username, password, remember });
+
+      if (!res.success) {
+        alert(res.message);
+        return;
+      }
+
+      saveSession(res.token);
+      window.location.href = "dashboard.html";
+    }
+  </script>
+</body>
+</html>

@@ -1,45 +1,41 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8">
-  <title>Login</title>
-  <script src="auth.js"></script>
+  <base target="_top">
 </head>
+
 <body>
   <h2>Đăng nhập</h2>
 
-  <input id="username" placeholder="Username"><br>
-  <input id="password" type="password" placeholder="Password"><br>
+  <label>Username:</label>
+  <input id="username">
+
+  <label>Password:</label>
+  <input type="password" id="password">
+
   <label>
-    <input type="checkbox" id="remember"> Remember me
-  </label><br>
+    <input type="checkbox" id="remember"> Ghi nhớ
+  </label>
+
   <button onclick="doLogin()">Login</button>
 
   <script>
-async function doLogin() {
-  const username = document.getElementById("username").value;
-  const password = document.getElementById("password").value;
-  const remember = document.getElementById("remember").checked;
+    function doLogin() {
+      const u = username.value;
+      const p = password.value;
+      const r = remember.checked;
 
-  const res = await api("login", { username, password, remember });
-
-  if (!res.success) {
-    alert(res.message);
-    return;
-  }
-
-  saveSession(res.token);
-
-  // LƯU THÊM CỜ REMEMBER
-  if (remember) {
-    localStorage.setItem("remember_me", "1");
-  } else {
-    localStorage.removeItem("remember_me");
-  }
-
-  window.location.href = "dashboard.html";
-}
-
+      google.script.run
+        .withSuccessHandler(function(res) {
+          if (res.success) {
+            localStorage.setItem("session_token", res.token);
+            window.location.href = "?page=dashboard";
+          } else {
+            alert(res.message);
+          }
+        })
+        .login(u, p, r);
+    }
   </script>
 </body>
 </html>

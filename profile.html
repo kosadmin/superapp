@@ -1,46 +1,31 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8">
-  <script src="auth.js"></script>
+  <base target="_top">
+  <?!= include("auth"); ?>
 </head>
-<body onload="loadProfile()">
 
+<body>
   <h2>Hồ sơ nhân viên</h2>
 
-  <div id="profile"></div>
+  <p>Username: <b id="u_username"></b></p>
+  <p>Email: <b id="u_email"></b></p>
+  <p>Họ tên: <b id="u_name"></b></p>
+  <p>Ngày tạo: <b id="u_created"></b></p>
+  <p>Nhóm: <b id="u_group"></b></p>
+  <p>Trạng thái: <b id="u_status"></b></p>
 
-  <br>
-  <a href="dashboard.html">⬅ Quay lại Dashboard</a>
+  <button onclick="window.location.href='?page=dashboard'">⬅ Quay lại Dashboard</button>
 
   <script>
-    async function loadProfile() {
-      const token = localStorage.getItem("session_token");
-      if (!token) {
-        window.location.href = "login.html";
-        return;
-      }
-
-      // Gọi API lấy thông tin user
-      const res = await api("getUserInfo", { token });
-
-      if (!res.success) {
-        alert("Session hết hạn hoặc lỗi");
-        window.location.href = "login.html";
-        return;
-      }
-
-      const user = res.user;
-
-      // Render thông tin
-      let html = "<ul>";
-      for (let key in user) {
-        html += `<li><b>${key}</b>: ${user[key]}</li>`;
-      }
-      html += "</ul>";
-
-      document.getElementById("profile").innerHTML = html;
-    }
+    checkSession(function(user) {
+      u_username.innerText = user.username;
+      u_email.innerText = user.email;
+      u_name.innerText = user.name;
+      u_created.innerText = user.created_at;
+      u_group.innerText = user.user_group;
+      u_status.innerText = user.user_status;
+    });
   </script>
 
 </body>

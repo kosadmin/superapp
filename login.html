@@ -1,56 +1,36 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Đăng nhập</title>
+  <meta charset="UTF-8">
+  <title>Login</title>
+  <script src="auth.js"></script>
 </head>
 <body>
-    <h2>Đăng nhập Hệ thống</h2>
-    <form id="loginForm">
-        <div>
-            <label for="username">Tên đăng nhập:</label>
-            <input type="text" id="username" name="username" required>
-        </div>
-        <div>
-            <label for="password">Mật khẩu:</label>
-            <input type="password" id="password" name="password" required>
-        </div>
-        <div>
-            <input type="checkbox" id="remember" name="remember">
-            <label for="remember">Ghi nhớ đăng nhập</label>
-        </div>
-        <button type="submit">Đăng nhập</button>
-        <p id="message" style="color: red;"></p>
-    </form>
-    
-    <script src="auth.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const loginForm = document.getElementById('loginForm');
-            const message = document.getElementById('message');
+  <h2>Đăng nhập</h2>
 
-            // Kiểm tra nếu đã có session hợp lệ thì chuyển hướng luôn
-            validateAndRedirect(null, '/dashboard.html'); 
-            
-            loginForm.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                message.textContent = 'Đang xử lý...';
+  <input id="username" placeholder="Username"><br>
+  <input id="password" type="password" placeholder="Password"><br>
+  <label>
+    <input type="checkbox" id="remember"> Remember me
+  </label><br>
+  <button onclick="doLogin()">Login</button>
 
-                const username = document.getElementById('username').value;
-                const password = document.getElementById('password').value;
-                const remember = document.getElementById('remember').checked;
+  <script>
+    async function doLogin() {
+      const username = document.getElementById("username").value;
+      const password = document.getElementById("password").value;
+      const remember = document.getElementById("remember").checked;
 
-                const result = await handleLogin(username, password, remember);
+      const res = await api("login", { username, password, remember });
 
-                if (result.success) {
-                    message.textContent = 'Đăng nhập thành công! Đang chuyển hướng...';
-                    window.location.href = '/dashboard.html'; // Chuyển hướng đến dashboard
-                } else {
-                    message.textContent = result.message || 'Lỗi đăng nhập không xác định.';
-                }
-            });
-        });
-    </script>
+      if (!res.success) {
+        alert(res.message);
+        return;
+      }
+
+      saveSession(res.token);
+      window.location.href = "dashboard.html";
+    }
+  </script>
 </body>
 </html>

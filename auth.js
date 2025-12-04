@@ -1,5 +1,5 @@
 // === PUT YOUR APPSCRIPT WEB APP URL HERE ===
-const API_URL = "REPLACE_WITH_YOUR_APPSCRIPT_URL";
+const API_URL = "https://script.google.com/macros/s/AKfycbzwBiyhbqL7ke_4E-psldCYukEQbD2tVSdylCKdeG8AfATLRypdiBS8aQnvT6NI33Pp8w/exec";
 
 async function api(action, data = {}) {
   const res = await fetch(API_URL, {

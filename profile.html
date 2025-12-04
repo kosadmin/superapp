@@ -1,54 +1,62 @@
 <!DOCTYPE html>
-<html>
+<html lang="vi">
 <head>
-  <meta charset="UTF-8">
-  <title>Hồ sơ nhân viên</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <script src="auth.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thông tin cá nhân</title>
 </head>
-<body onload="loadProfile()">
-  <h2>Hồ sơ nhân viên</h2>
+<body>
+    <header>
+        <h1>Thông tin cá nhân</h1>
+        <nav>
+            <a href="/dashboard.html">Dashboard</a> | 
+            <a href="/profile.html">Thông tin cá nhân</a> | 
+            <button id="logoutBtn">Đăng xuất</button>
+        </nav>
+    </header>
+    <main id="profileInfo">
+        <p>Đang tải thông tin...</p>
+    </main>
 
-  <div id="profileArea">Đang tải...</div>
+    <script src="auth.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // 1. Kiểm tra session
+            validateAndRedirect('/login.html')
+                .then(session => {
+                    if (session.isAuthenticated) {
+                        // 2. Session hợp lệ -> Lấy thông tin người dùng
+                        loadUserProfile();
+                    } else {
+                        document.getElementById('profileInfo').innerHTML = `<p>Bạn cần đăng nhập để xem trang này.</p>`;
+                    }
+                });
 
-  <p><a href="dashboard.html">⬅ Quay lại Dashboard</a></p>
-  <p><a href="#" onclick="logout(); return false;">Logout</a></p>
+            async function loadUserProfile() {
+                const profileInfoDiv = document.getElementById('profileInfo');
+                const result = await getUserInfo();
 
-  <script>
-    async function loadProfile() {
-      const token = getSession();
-      if (!token) {
-        window.location.href = "login.html";
-        return;
-      }
+                if (result.success && result.user) {
+                    const user = result.user;
+                    profileInfoDiv.innerHTML = `
+                        <table>
+                            <tr><th>Tên đăng nhập:</th><td>${user.username}</td></tr>
+                            <tr><th>Email:</th><td>${user.email}</td></tr>
+                            <tr><th>Họ tên:</th><td>${user.name || '(Chưa cập nhật)'}</td></tr>
+                            <tr><th>Nhóm người dùng:</th><td>${user.user_group}</td></tr>
+                            <tr><th>Trạng thái:</th><td>${user.user_status}</td></tr>
+                            <tr><th>Ngày tạo:</th><td>${user.created_at || '(Không rõ)'}</td></tr>
+                        </table>
+                        <p style="margin-top: 20px;">*Lưu ý: Mật khẩu đã được loại bỏ khi truy vấn.</p>
+                    `;
+                } else {
+                    profileInfoDiv.innerHTML = `<p style="color: red;">Lỗi: ${result.message || 'Không thể tải thông tin người dùng.'}</p>`;
+                }
+            }
 
-      const res = await api("getUserInfo", { token });
-      if (!res || !res.success) {
-        alert("Session hết hạn hoặc lỗi");
-        clearSession();
-        window.location.href = "login.html";
-        return;
-      }
-
-      const user = res.user;
-
-      // Hide password when rendering
-      if (user.password) user.password = "********";
-
-      let html = "<ul>";
-      // show fields in readable order if present
-      const order = ["username","name","email","user_group","created_at","user_status"];
-      order.forEach(k => {
-        if (user[k] !== undefined) html += `<li><strong>${k}</strong>: ${user[k]}</li>`;
-      });
-      // show any other fields
-      for (const k in user) {
-        if (!order.includes(k)) html += `<li><strong>${k}</strong>: ${user[k]}</li>`;
-      }
-      html += "</ul>";
-
-      document.getElementById("profileArea").innerHTML = html;
-    }
-  </script>
+            // Gán sự kiện cho nút đăng xuất
+            document.getElementById('logoutBtn').addEventListener('click', handleLogout);
+        });
+    </script>
 </body>
 </html>

@@ -1,68 +1,56 @@
 <!DOCTYPE html>
-<html>
+<html lang="vi">
 <head>
-  <meta charset="UTF-8">
-  <title>Login</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <script src="auth.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng nhập</title>
 </head>
 <body>
-  <h2>Đăng nhập</h2>
+    <h2>Đăng nhập Hệ thống</h2>
+    <form id="loginForm">
+        <div>
+            <label for="username">Tên đăng nhập:</label>
+            <input type="text" id="username" name="username" required>
+        </div>
+        <div>
+            <label for="password">Mật khẩu:</label>
+            <input type="password" id="password" name="password" required>
+        </div>
+        <div>
+            <input type="checkbox" id="remember" name="remember">
+            <label for="remember">Ghi nhớ đăng nhập</label>
+        </div>
+        <button type="submit">Đăng nhập</button>
+        <p id="message" style="color: red;"></p>
+    </form>
+    
+    <script src="auth.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const loginForm = document.getElementById('loginForm');
+            const message = document.getElementById('message');
 
-  <label>Username<br>
-    <input id="username" placeholder="Username" autocomplete="username">
-  </label>
-  <br><br>
+            // Kiểm tra nếu đã có session hợp lệ thì chuyển hướng luôn
+            validateAndRedirect(null, '/dashboard.html'); 
+            
+            loginForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                message.textContent = 'Đang xử lý...';
 
-  <label>Password<br>
-    <input id="password" type="password" placeholder="Password" autocomplete="current-password">
-  </label>
-  <br><br>
+                const username = document.getElementById('username').value;
+                const password = document.getElementById('password').value;
+                const remember = document.getElementById('remember').checked;
 
-  <label><input type="checkbox" id="remember"> Ghi nhớ đăng nhập (Remember me)</label>
-  <br><br>
+                const result = await handleLogin(username, password, remember);
 
-  <button id="btnLogin">Login</button>
-
-  <p id="msg" style="color:red"></p>
-
-  <script>
-    document.getElementById("btnLogin").addEventListener("click", async () => {
-      const username = document.getElementById("username").value.trim();
-      const password = document.getElementById("password").value;
-      const remember = document.getElementById("remember").checked;
-
-      if (!username || !password) {
-        document.getElementById("msg").innerText = "Vui lòng nhập username và password.";
-        return;
-      }
-
-      document.getElementById("msg").innerText = "Đang đăng nhập...";
-
-      try {
-        const res = await api("login", { username, password, remember });
-        if (!res || !res.success) {
-          document.getElementById("msg").innerText = res && res.message ? res.message : "Đăng nhập thất bại.";
-          return;
-        }
-
-        // Save token to browser so subsequent pages know the session
-        saveSession(res.token);
-        if (remember) localStorage.setItem("remember_me", "1");
-
-        // Redirect to dashboard
-        window.location.href = "dashboard.html";
-      } catch (err) {
-        console.error(err);
-        document.getElementById("msg").innerText = "Lỗi kết nối. Vui lòng thử lại.";
-      }
-    });
-
-    // If already logged in, go straight to dashboard
-    (function autoRedirectIfLogged() {
-      const token = getSession();
-      if (token) window.location.href = "dashboard.html";
-    })();
-  </script>
+                if (result.success) {
+                    message.textContent = 'Đăng nhập thành công! Đang chuyển hướng...';
+                    window.location.href = '/dashboard.html'; // Chuyển hướng đến dashboard
+                } else {
+                    message.textContent = result.message || 'Lỗi đăng nhập không xác định.';
+                }
+            });
+        });
+    </script>
 </body>
 </html>

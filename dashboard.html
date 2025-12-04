@@ -1,42 +1,15 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard</title>
+  <meta charset="UTF-8">
+  <script src="auth.js"></script>
 </head>
-<body>
-    <header>
-        <h1>Dashboard - Chào mừng!</h1>
-        <p>Bạn đã đăng nhập thành công.</p>
-        <nav>
-            <a href="/dashboard.html">Dashboard</a> | 
-            <a href="/profile.html">Thông tin cá nhân</a> | 
-            <button id="logoutBtn">Đăng xuất</button>
-        </nav>
-    </header>
-    <main id="content">
-        <p>Tải dữ liệu...</p>
-    </main>
+<body onload="checkLogin()">
 
-    <script src="auth.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // Kiểm tra session. Nếu không hợp lệ, sẽ tự động chuyển về login.html
-            validateAndRedirect('/login.html')
-                .then(session => {
-                    if (session.isAuthenticated) {
-                        const content = document.getElementById('content');
-                        content.innerHTML = `
-                            <p>Tài khoản hiện tại: <strong>${session.username}</strong></p>
-                            <p>Đây là trang chính sau khi đăng nhập. Bạn có thể truy cập các trang khác.</p>
-                        `;
-                    }
-                });
+  <h2>Dashboard</h2>
+  <p>Chào mừng bạn, bạn đã đăng nhập thành công!</p>
 
-            // Gán sự kiện cho nút đăng xuất
-            document.getElementById('logoutBtn').addEventListener('click', handleLogout);
-        });
-    </script>
+  <button onclick="logout()">Logout</button>
+
 </body>
 </html>

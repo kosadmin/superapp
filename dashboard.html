@@ -1,21 +1,28 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <base target="_top">
-  <?!= include("auth"); ?>
+  <meta charset="UTF-8">
+  <title>Dashboard</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <script src="auth.js"></script>
 </head>
-
-<body>
+<body onload="init()">
   <h2>Dashboard</h2>
+  <p id="welcome">Đang kiểm tra phiên...</p>
 
-  <p>Xin chào, <span id="name"></span></p>
-
-  <a href="?page=profile">➡ Xem hồ sơ nhân viên</a>
+  <nav>
+    <a href="profile.html">Xem hồ sơ</a> |
+    <a href="#" onclick="logout(); return false;">Logout</a>
+  </nav>
 
   <script>
-    checkSession(function(user) {
-      document.getElementById("name").innerText = user.name;
-    });
+    async function init() {
+      const username = await checkLogin();
+      if (!username) return; // checkLogin redirects if not valid
+
+      // show welcome (username may be returned from validate)
+      document.getElementById("welcome").innerText = "Chào mừng, " + (username === true ? "" : username);
+    }
   </script>
 </body>
 </html>

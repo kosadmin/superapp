@@ -1,5 +1,5 @@
 // --- CẤU HÌNH API ---
-const APPSCRIPT_API_URL = 'https://script.google.com/macros/s/AKfycbzwBiyhbqL7ke_4E-psldCYukEQbD2tVSdylCKdeG8AfATLRypdiBS8aQnvT6NI33Pp8w/exec'; // <<< THAY THẾ URL DEPLOY CỦA APPSCRIPT >>>
+const APPSCRIPT_API_URL = 'https://script.google.com/macros/s/AKfycbwaelNye6S3YX1WaMTPkqqfh5N1lUA8RdBGmwO77O9G_DxpuM9QBrxMlMRp2SK-6sdR/exec'; // <<< THAY THẾ URL DEPLOY CỦA APPSCRIPT >>>
 const TOKEN_KEY = 'user_session_token';
 
 // --- HÀM GỌI API CHUNG ---

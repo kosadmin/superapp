@@ -1,40 +1,22 @@
-const API_URL = "https://script.google.com/macros/s/AKfycbzwBiyhbqL7ke_4E-psldCYukEQbD2tVSdylCKdeG8AfATLRypdiBS8aQnvT6NI33Pp8w/exec"; // <--- Dán link API Appscript GGsheet vào đây
-
-async function api(action, data) {
-  const res = await fetch(API_URL, {
-    method: "POST",
-    body: JSON.stringify({ action, ...data })
-  });
-  return await res.json();
-}
-
-// Lưu token vào localStorage
-function saveSession(token) {
-  localStorage.setItem("session_token", token);
-}
-
-function getSession() {
-  return localStorage.getItem("session_token");
-}
-
-async function checkLogin() {
-  const token = getSession();
+<script>
+async function checkSession(onSuccess) {
+  const token = localStorage.getItem("session_token");
   if (!token) {
-    window.location.href = "login.html";
+    alert("Bạn chưa đăng nhập!");
+    window.location.href = "?page=login";
     return;
   }
 
-  const res = await api("validate", { token });
-  if (!res.valid) {
-    localStorage.removeItem("session_token");
-    window.location.href = "login.html";
-  }
+  google.script.run
+    .withSuccessHandler(function(res) {
+      if (res.valid) {
+        onSuccess(res.user);
+      } else {
+        alert("Session hết hạn");
+        localStorage.removeItem("session_token");
+        window.location.href = "?page=login";
+      }
+    })
+    .validateSession(token);
 }
-
-async function logout() {
-  const token = getSession();
-  await api("logout", { token });
-
-  localStorage.removeItem("session_token");
-  window.location.href = "login.html";
-}
+</script>

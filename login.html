@@ -1,41 +1,68 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <base target="_top">
+  <meta charset="UTF-8">
+  <title>Login</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <script src="auth.js"></script>
 </head>
-
 <body>
   <h2>Đăng nhập</h2>
 
-  <label>Username:</label>
-  <input id="username">
-
-  <label>Password:</label>
-  <input type="password" id="password">
-
-  <label>
-    <input type="checkbox" id="remember"> Ghi nhớ
+  <label>Username<br>
+    <input id="username" placeholder="Username" autocomplete="username">
   </label>
+  <br><br>
 
-  <button onclick="doLogin()">Login</button>
+  <label>Password<br>
+    <input id="password" type="password" placeholder="Password" autocomplete="current-password">
+  </label>
+  <br><br>
+
+  <label><input type="checkbox" id="remember"> Ghi nhớ đăng nhập (Remember me)</label>
+  <br><br>
+
+  <button id="btnLogin">Login</button>
+
+  <p id="msg" style="color:red"></p>
 
   <script>
-    function doLogin() {
-      const u = username.value;
-      const p = password.value;
-      const r = remember.checked;
+    document.getElementById("btnLogin").addEventListener("click", async () => {
+      const username = document.getElementById("username").value.trim();
+      const password = document.getElementById("password").value;
+      const remember = document.getElementById("remember").checked;
 
-      google.script.run
-        .withSuccessHandler(function(res) {
-          if (res.success) {
-            localStorage.setItem("session_token", res.token);
-            window.location.href = "?page=dashboard";
-          } else {
-            alert(res.message);
-          }
-        })
-        .login(u, p, r);
-    }
+      if (!username || !password) {
+        document.getElementById("msg").innerText = "Vui lòng nhập username và password.";
+        return;
+      }
+
+      document.getElementById("msg").innerText = "Đang đăng nhập...";
+
+      try {
+        const res = await api("login", { username, password, remember });
+        if (!res || !res.success) {
+          document.getElementById("msg").innerText = res && res.message ? res.message : "Đăng nhập thất bại.";
+          return;
+        }
+
+        // Save token to browser so subsequent pages know the session
+        saveSession(res.token);
+        if (remember) localStorage.setItem("remember_me", "1");
+
+        // Redirect to dashboard
+        window.location.href = "dashboard.html";
+      } catch (err) {
+        console.error(err);
+        document.getElementById("msg").innerText = "Lỗi kết nối. Vui lòng thử lại.";
+      }
+    });
+
+    // If already logged in, go straight to dashboard
+    (function autoRedirectIfLogged() {
+      const token = getSession();
+      if (token) window.location.href = "dashboard.html";
+    })();
   </script>
 </body>
 </html>

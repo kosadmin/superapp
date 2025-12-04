@@ -11,5 +11,31 @@
 
   <button onclick="logout()">Logout</button>
 
+  <script>
+    // Kiểm tra session khi mở trang
+    async function checkLogin() {
+      const token = localStorage.getItem("session_token");
+      const remember = localStorage.getItem("remember_me");
+
+      // Không có token → trả về login
+      if (!token) {
+        window.location.href = "login.html";
+        return;
+      }
+
+      // Gửi token lên API để kiểm tra còn hạn không
+      const res = await api("checkSession", { token });
+
+      if (!res.valid) {
+        // Token hết hạn hoặc sai → xóa và về login
+        localStorage.removeItem("session_token");
+        localStorage.removeItem("remember_me");
+        window.location.href = "login.html";
+      }
+
+      // Nếu valid → cho ở lại dashboard
+    }
+  </script>
+
 </body>
 </html>

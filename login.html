@@ -16,21 +16,30 @@
   <button onclick="doLogin()">Login</button>
 
   <script>
-    async function doLogin() {
-      const username = document.getElementById("username").value;
-      const password = document.getElementById("password").value;
-      const remember = document.getElementById("remember").checked;
+async function doLogin() {
+  const username = document.getElementById("username").value;
+  const password = document.getElementById("password").value;
+  const remember = document.getElementById("remember").checked;
 
-      const res = await api("login", { username, password, remember });
+  const res = await api("login", { username, password, remember });
 
-      if (!res.success) {
-        alert(res.message);
-        return;
-      }
+  if (!res.success) {
+    alert(res.message);
+    return;
+  }
 
-      saveSession(res.token);
-      window.location.href = "dashboard.html";
-    }
+  saveSession(res.token);
+
+  // LƯU THÊM CỜ REMEMBER
+  if (remember) {
+    localStorage.setItem("remember_me", "1");
+  } else {
+    localStorage.removeItem("remember_me");
+  }
+
+  window.location.href = "dashboard.html";
+}
+
   </script>
 </body>
 </html>

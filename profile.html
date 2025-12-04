@@ -2,52 +2,44 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Thông tin hồ sơ</title>
   <script src="auth.js"></script>
 </head>
 <body onload="loadProfile()">
 
   <h2>Hồ sơ nhân viên</h2>
 
-  <div id="profileBox">Đang tải thông tin...</div>
+  <div id="profile"></div>
 
   <br>
-  <a href="dashboard.html">← Quay lại Dashboard</a>
+  <a href="dashboard.html">⬅ Quay lại Dashboard</a>
 
   <script>
     async function loadProfile() {
       const token = localStorage.getItem("session_token");
-
       if (!token) {
         window.location.href = "login.html";
         return;
       }
 
+      // Gọi API lấy thông tin user
       const res = await api("getUserInfo", { token });
 
       if (!res.success) {
-        alert("Session đã hết hạn, vui lòng đăng nhập lại.");
-        localStorage.removeItem("session_token");
+        alert("Session hết hạn hoặc lỗi");
         window.location.href = "login.html";
         return;
       }
 
       const user = res.user;
 
-      let html = "<table border='1' cellpadding='6'>";
-
+      // Render thông tin
+      let html = "<ul>";
       for (let key in user) {
-        html += `
-          <tr>
-            <td><b>${key}</b></td>
-            <td>${user[key]}</td>
-          </tr>
-        `;
+        html += `<li><b>${key}</b>: ${user[key]}</li>`;
       }
+      html += "</ul>";
 
-      html += "</table>";
-
-      document.getElementById("profileBox").innerHTML = html;
+      document.getElementById("profile").innerHTML = html;
     }
   </script>
 

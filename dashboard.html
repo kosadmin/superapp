@@ -24,7 +24,7 @@
       }
 
       // Gửi token lên API để kiểm tra còn hạn không
-      const res = await api("checkSession", { token });
+      const res = await api("validate", { token });
 
       if (!res.valid) {
         // Token hết hạn hoặc sai → xóa và về login

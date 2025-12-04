@@ -1,44 +1,21 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8">
-  <script src="auth.js"></script>
+  <base target="_top">
+  <?!= include("auth"); ?>
 </head>
-<body onload="checkLogin()">
 
+<body>
   <h2>Dashboard</h2>
-  <p>Chào mừng bạn, bạn đã đăng nhập thành công!</p>
 
-<a href="profile.html">Xem hồ sơ</a>
+  <p>Xin chào, <span id="name"></span></p>
 
-
-  <button onclick="logout()">Logout</button>
+  <a href="?page=profile">➡ Xem hồ sơ nhân viên</a>
 
   <script>
-    // Kiểm tra session khi mở trang
-    async function checkLogin() {
-      const token = localStorage.getItem("session_token");
-      const remember = localStorage.getItem("remember_me");
-
-      // Không có token → trả về login
-      if (!token) {
-        window.location.href = "login.html";
-        return;
-      }
-
-      // Gửi token lên API để kiểm tra còn hạn không
-      const res = await api("validate", { token });
-
-      if (!res.valid) {
-        // Token hết hạn hoặc sai → xóa và về login
-        localStorage.removeItem("session_token");
-        localStorage.removeItem("remember_me");
-        window.location.href = "login.html";
-      }
-
-      // Nếu valid → cho ở lại dashboard
-    }
+    checkSession(function(user) {
+      document.getElementById("name").innerText = user.name;
+    });
   </script>
-
 </body>
 </html>
